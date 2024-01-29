@@ -23,7 +23,6 @@ jobs:
         run: |
           export RELEASE=$(awk -F'[*…]' '/###*/{print $(NF-1)}' CHANGELOG.md | xargs | awk '{split($0, array, /##/); print array[3]}' | xargs | awk '{split($0, a, /-/); print a[1]}' | xargs | awk '{sub(/\[/,"")sub(/\]/,"")}1' $1)
 
-          cd ./web
           docker build --tag ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_PROD_COLLAB_REPOSITORY }}:$RELEASE .
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_PROD_COLLAB_REPOSITORY }}:$RELEASE
           docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_PROD_COLLAB_REPOSITORY }}:$RELEASE ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_PROD_COLLAB_REPOSITORY }}:latest
