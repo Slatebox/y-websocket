@@ -57,8 +57,10 @@
     ]
   },
   "dependencies": {
+    "dotenv": "^16.4.1",
     "lib0": "^0.2.52",
     "lodash.debounce": "^4.0.8",
+    "mongodb": "^6.3.0",
     "y-protocols": "^1.0.5"
   },
   "devDependencies": {

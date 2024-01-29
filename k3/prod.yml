@@ -1,0 +1,118 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: slateboxcreds
+data:
+  .dockerconfigjson: DOCKER_CONFIG
+type: kubernetes.io/dockerconfigjson
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: slatebox-prod-collab-secrets
+data:
+  MONGO_URL: MONGO_URL_SECRET
+  API_GEN_KEY: API_GEN_KEY_SECRET
+  API_KEYS: API_KEYS_SECRET
+---
+# This section will create a deployment in the Kubernetes cluster
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slatebox-prod-collab
+  labels:
+    app: slatebox-prod-collab
+spec:
+  selector:
+    matchLabels:
+      app: slatebox-prod-collab
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: slatebox-prod-collab
+    spec:
+      containers:
+        - env:
+            - name: MONGO_URL
+              valueFrom:
+                secretKeyRef:
+                  key: MONGO_URL
+                  name: slatebox-prod-collab-secrets
+            - name: API_GEN_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: API_GEN_KEY
+                  name: slatebox-prod-collab-secrets
+            - name: API_KEYS
+              valueFrom:
+                secretKeyRef:
+                  key: API_KEYS
+                  name: slatebox-prod-collab-secrets
+            - name: HOST
+              value: "0.0.0.0"
+            - name: PORT
+              value: "3000"
+            - name: NODE_OPTIONS
+              value: --max-old-space-size=2048
+          image: timheckel/slatebox-prod-collab:latest
+          imagePullPolicy: Always
+          name: slatebox-prod-collab
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+            requests:
+              cpu: 1000m
+              memory: 2Gi
+      imagePullSecrets:
+        - name: slateboxcreds
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: slatebox-prod-collab-ingress
+  annotations:
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+    external-dns.alpha.kubernetes.io/hostname: "collab.slatebox.com"
+spec:
+  tls:
+    - hosts:
+        - collab.slatebox.com
+      secretName: cloudflare-slatebox-tls
+  rules:
+    - host: collab.slatebox.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: slatebox-prod-collab-service
+                port:
+                  number: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: slatebox-prod-collab-service
+  labels:
+    app: slatebox-prod-collab-service
+  annotations:
+    traefik.ingress.kubernetes.io/affinity: "true"
+    traefik.ingress.kubernetes.io/session-cookie-name: "sticky"
+spec:
+  type: ClusterIP
+  selector:
+    app: slatebox-prod-collab
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 3000
