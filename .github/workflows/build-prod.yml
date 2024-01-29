@@ -34,6 +34,7 @@ jobs:
           # set up docker creds
           # echo 'SECOND sed $RELEASE DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }} DOCKER_HUB_PROD_COLLAB_REPOSITORY: ${{ secrets.DOCKER_HUB_PROD_COLLAB_REPOSITORY }} DOCKER_CONFIG: ${{ secrets.DOCKER_CONFIG }}'
           export DOCKER_CONFIG=$(cat ~/.docker/config.json | base64 -w 0)
+          sed -i'' -e 's/DOCKER_HUB_USERNAME/${{ secrets.DOCKER_HUB_USERNAME }}/g' -e 's/DOCKER_HUB_PROD_REPOSITORY/${{ secrets.DOCKER_HUB_PROD_REPOSITORY }}/g' -e "s/IMAGE_LABEL/$RELEASE/g" -e "s/DOCKER_CONFIG/$DOCKER_CONFIG/g" ./k3/prod.yml
 
           # apply both
           kubectl apply -f ./k3/prod.yml
