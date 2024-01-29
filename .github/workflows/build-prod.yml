@@ -30,11 +30,10 @@ jobs:
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_PROD_COLLAB_REPOSITORY }}:latest
 
           # set up collab secrets
-          echo 'FIRST sed $RELEASE PROD_ROOT_URL: ${{ secrets.PROD_ROOT_URL }} PROD_MONGO_URL: ${{ secrets.PROD_MONGO_URL }} PROD_MONGO_OPLOG_URL: ${{ secrets.PROD_MONGO_OPLOG_URL }} PROD_PORT: ${{ secrets.PROD_PORT }} PRDO_METEOR_SETTINGS: ${{ secrets.PROD_METEOR_SETTINGS }}'
           sed -i'' -e "s/MONGO_URL_SECRET/${{ secrets.PROD_MONGO_URL }}/g" -e "s/API_GEN_KEY_SECRET/${{ secrets.API_GEN_KEY }}/g" -e "s/API_KEYS_SECRET/${{ secrets.API_KEYS }}/g" ./k3/prod.yml
 
           # set up docker creds
-          echo 'SECOND sed $RELEASE DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }} DOCKER_HUB_PROD_COLLAB_REPOSITORY: ${{ secrets.DOCKER_HUB_PROD_COLLAB_REPOSITORY }} DOCKER_CONFIG: ${{ secrets.DOCKER_CONFIG }}'
+          # echo 'SECOND sed $RELEASE DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }} DOCKER_HUB_PROD_COLLAB_REPOSITORY: ${{ secrets.DOCKER_HUB_PROD_COLLAB_REPOSITORY }} DOCKER_CONFIG: ${{ secrets.DOCKER_CONFIG }}'
           export DOCKER_CONFIG=$(cat ~/.docker/config.json | base64 -w 0)
 
           # apply both
