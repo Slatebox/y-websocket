@@ -17,7 +17,11 @@ module.exports = async (request) => {
   }
   const publicKey = decodedBase64Bearer?.[0];
   const sentHash = decodedBase64Bearer?.[1];
-  const timestamp = params.query.timestamp;
+  // y-webocket changes the url to include the room, so requests coming in look like:
+  // ?bearer=xxx&timestamp=2024-01-30T00:43:29.029Z/fdd1ea7aded1
+  // so always stripping off the /fdd1ea7aded1 (room name) to get the correct timestamp
+  // this may not be neeed - started using params in the websocket provier call
+  const timestamp = params.query.timestamp.split("/")[0];
 
   if (!timestamp) {
     throw new Error(
@@ -71,5 +75,6 @@ module.exports = async (request) => {
     return true;
   }
 
+  console.log("url is", request.url, decodedBase64Bearer);
   throw new Error(`Not authenticated`);
 };

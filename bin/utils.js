@@ -209,12 +209,25 @@ const messageListener = (conn, doc, message) => {
  * @param {any} conn
  */
 const closeConn = (doc, conn) => {
+  // console.log(
+  //   "doc conn close",
+  //   doc?.clientID,
+  //   doc.conns.size,
+  //   doc.conns.has(conn),
+  //   doc.conns.get(conn)
+  // );
   if (doc.conns.has(conn)) {
     /**
      * @type {Set<number>}
      */
     // @ts-ignore
     const controlledIds = doc.conns.get(conn);
+    // console.log("deleting conn", controlledIds);
+    // const otherControlledIds = Array.from(doc.conns).map((conn, ix) => {
+    //   // console.log("checking other conn", ix, doc.conns.get(conn));
+    //   return doc.conns.get(conn);
+    // });
+    // console.log("otherControlledIds", otherControlledIds);
     doc.conns.delete(conn);
     awarenessProtocol.removeAwarenessStates(
       doc.awareness,
@@ -272,6 +285,13 @@ exports.setupWSConnection = (
   // get doc, initialize if it does not exist yet
   const doc = getYDoc(docName, gc);
   doc.conns.set(conn, new Set());
+  console.log(
+    "doc conns are ",
+    docName,
+    doc.clientID,
+    doc.conns.get(conn),
+    doc.conns.size
+  );
   // listen and reply to events
   conn.on(
     "message",
