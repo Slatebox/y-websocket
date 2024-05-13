@@ -37,6 +37,6 @@ jobs:
           sed -i'' -e 's/DOCKER_HUB_USERNAME/${{ secrets.DOCKER_HUB_USERNAME }}/g' -e 's/DOCKER_HUB_PROD_REPOSITORY/${{ secrets.DOCKER_HUB_PROD_REPOSITORY }}/g' -e "s/IMAGE_LABEL/$RELEASE/g" -e "s/DOCKER_CONFIG/$DOCKER_CONFIG/g" ./k3/prod.yml
 
           # apply both
-          echo 'docker config is: ${{ DOCKER_CONFIG }}'
+          echo 'docker config is: $DOCKER_CONFIG'
 
           kubectl apply -f ./k3/prod.yml
