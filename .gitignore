@@ -1,4 +1,5 @@
 dist
 node_modules
 tmp
+/k3/prod_actual.yml
 .env
